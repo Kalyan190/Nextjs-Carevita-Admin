@@ -36,6 +36,7 @@ const DoctorLogin = () => {
 
             if (data.success) {
                 localStorage.setItem('DToken', data.token);
+                localStorage.setItem('DId', data.doctor._id);
                 setDtoken(data.token);
                 toast.success(data.message);
                 router.push('/dashboard/doctor-appointments');

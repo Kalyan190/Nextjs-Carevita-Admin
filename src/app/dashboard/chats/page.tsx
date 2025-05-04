@@ -12,10 +12,16 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<any[]>([])
   const [newMessage, setNewMessage] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  const doctorId = localStorage.getItem('DId') // or userId
+  const [doctorId, setDoctorId] = useState<string | null>(null)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const doctorId = localStorage.getItem('DId') // or userId
+      setDoctorId(doctorId)
+    }
+  }, []);
 
   useEffect(() => {
+    
     if (doctorId) {
       axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/chat/conversations?userId=${doctorId}&role=doctor`)
         .then(res => { setConversations(res.data); setSelectedConversation(res.data[0]) })

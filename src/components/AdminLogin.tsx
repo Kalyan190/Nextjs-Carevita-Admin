@@ -123,7 +123,7 @@ const AdminLogin = () => {
                                     <button
                                         type="button"
                                         className='ml-2 font-medium text-base text-violet-500 hover:text-violet-700'
-                                        onClick={() => router.push('/')}
+                                        onClick={() => router.push('/doctor-login')}
                                     >
                                         Click here
                                     </button>

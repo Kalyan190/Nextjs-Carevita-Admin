@@ -6,7 +6,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import axios from 'axios';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 
 const DoctorLogin = () => {
@@ -129,11 +129,11 @@ const DoctorLogin = () => {
                                     </button>
                                 </div>
                                 <div className='mt-4 flex justify-center items-center'>
-                                    <p className='font-medium text-base'>Admin Account Login ?</p>
+                                    <p className='font-medium text-base'>Doctor Register ?</p>
                                     <button
                                         type="button"
                                         className='ml-2 font-medium text-base text-violet-500 hover:text-violet-700'
-                                        onClick={() => router.push('/')}
+                                        onClick={() => router.push('/doctor-register')}
                                     >
                                         Click here
                                     </button>

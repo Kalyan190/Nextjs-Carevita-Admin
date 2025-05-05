@@ -184,6 +184,132 @@ export const AdminContextProvider = ({ children }: AdminContextProviderProps) =>
          setLoading(false);
       }
    };
+   
+   const approveCertificates = async (docId: string) => {
+      try {
+         setLoading(true);
+         const { data } = await axios.post(
+            backendUrl + '/api/admin/approve-certificates',
+            { docId },
+            { headers: { aToken } }
+         );
+         if (data.success) {
+            toast.success(data.message);
+            getAllDoctors();
+         } else {
+            toast.error(data.message);
+         }
+      } catch (error) {
+         if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || error.message);
+         } else {
+            toast.error('An unexpected error occurred');
+         }
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const rejectCertificates = async (docId: string) => {
+      try {
+         setLoading(true);
+         const { data } = await axios.post(
+            backendUrl + '/api/admin/reject-certificates',
+            { docId },
+            { headers: { aToken } }
+         );
+         if (data.success) {
+            toast.success(data.message);
+            getAllDoctors();
+         } else {
+            toast.error(data.message);
+         }
+      } catch (error) {
+         if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || error.message);
+         } else {
+            toast.error('An unexpected error occurred');
+         }
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const approveDoctor = async (docId: string) => {
+      try {
+         setLoading(true);
+         const { data } = await axios.post(
+            backendUrl + '/api/admin/approve-doctor',
+            { docId },
+            { headers: { aToken } }
+         );
+         if (data.success) {
+            toast.success(data.message);
+            getAllDoctors();
+         } else {
+            toast.error(data.message);
+         }
+      } catch (error) {
+         if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || error.message);
+         } else {
+            toast.error('An unexpected error occurred');
+         }
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const rejectDoctor = async (docId: string) => {
+      try {
+         setLoading(true);
+         const { data } = await axios.post(
+            backendUrl + '/api/admin/reject-doctor',
+            { docId },
+            { headers: { aToken } }
+         );
+         if (data.success) {
+            toast.success(data.message);
+            getAllDoctors();
+         } else {
+            toast.error(data.message);
+         }
+      } catch (error) {
+         if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || error.message);
+         } else {
+            toast.error('An unexpected error occurred');
+         }
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const deleteDoctorAccount = async (docId: string) => {
+      try {
+         setLoading(true);
+         const { data } = await axios.delete(
+            `${backendUrl}/api/admin/delete-doctor/${docId}`,
+            { headers: { aToken } }
+         );
+         if (data.success) {
+            toast.success(data.message);
+            getAllDoctors();
+         } else {
+            toast.error(data.message);
+         }
+      } catch (error) {
+         if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || error.message);
+         } else {
+            toast.error('An unexpected error occurred');
+         }
+      } finally {
+         setLoading(false);
+      }
+   };
+
+
 
    const value = {
       aToken,

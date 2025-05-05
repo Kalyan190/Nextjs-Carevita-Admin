@@ -5,6 +5,7 @@ import { useDoctorContext } from '@/context/DoctorContext';
 import { assets } from '@/assets/assets_admin/assets';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'
+import { MessageCircle } from 'lucide-react';
 
 const Sidebar = () => {
     const pathname = usePathname();
@@ -21,7 +22,7 @@ const Sidebar = () => {
     const isActive = (path: string) => pathname === path;
 
     return (
-        <div className='min-h-screen bg-white border-r'>
+        <div className='h-screen bg-white border-r'>
             {aToken && (
                 <ul className='text-[#515151] mt-5'>
                     <Link 
@@ -39,11 +40,11 @@ const Sidebar = () => {
                         <p className='hidden md:block'>Appointments</p>
                     </Link>
                     <Link 
-                        href='/dashboard/add-doctor'
+                        href='/dashboard/doctor-verification'
                         className={`flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive('/dashboard/add-doctor') ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
                     >
                         <img src={assets.add_icon.src} alt="error" />
-                        <p className='hidden md:block'>Add Doctor</p>
+                        <p className='hidden md:block'>Doctor Verification</p>
                     </Link>
                     <Link 
                         href='/dashboard/doctor-list'
@@ -77,6 +78,13 @@ const Sidebar = () => {
                         <img src={assets.people_icon.src} alt="error" />
                         <p className='hidden md:block'>Profile</p>
                     </Link>
+                <Link
+                   href='/dashboard/chats'
+                   className={`flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive('/dashboard/chats') ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}
+                >
+                   <MessageCircle/>
+                   <p className='hidden md:block'>Messages</p>
+                </Link>
                 </ul>
             )}
         </div>

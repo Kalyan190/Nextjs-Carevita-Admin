@@ -1,28 +1,8 @@
 "use client";
-
-import AdminLogin from "@/components/AdminLogin";
-import DoctorLogin from "@/components/DoctorLogin";
 import { Button } from "@/components/ui/button";
-import { useAdminContext } from "@/context/AdminContext";
-import { useDoctorContext } from "@/context/DoctorContext";
 import Link from "next/link";
-import { useContext } from "react";
 
 export default function Home() {
-  const adminContext = useAdminContext();
-  const doctorContext = useDoctorContext();
-
-  if (!adminContext || !doctorContext) {
-    return null;
-  }
-
-  const { aToken } = adminContext;
-  const { dToken } = doctorContext;
-
-  if (aToken || dToken) {
-    return null; // Will be redirected by middleware
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8">

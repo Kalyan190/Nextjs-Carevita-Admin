@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useContext } from 'react';
 import { toast } from 'react-toastify';
 import { assets } from '../assets/assets_admin/assets';
 import { useAdminContext } from '../context/AdminContext';

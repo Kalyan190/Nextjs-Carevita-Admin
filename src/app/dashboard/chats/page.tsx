@@ -61,9 +61,9 @@ export default function ChatPage() {
     setNewMessage('')
   }
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  // }, [messages])
 
   return (
    <div className=''>

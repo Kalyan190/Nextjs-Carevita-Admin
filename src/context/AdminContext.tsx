@@ -3,9 +3,21 @@ import axios from "axios";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
+interface Certificate {
+   _id: string
+   name: string
+   url: string
+   status: "pending" | "approved" | "rejected"
+   rejectionReason?: string
+}
+
 interface Doctor {
-   // Add appropriate doctor interface properties
-   [key: string]: any;
+   _id: string
+   name: string
+   email: string
+   status: "pending" | "approved" | "rejected" | "cancelled"
+   certificates: Certificate[]
+   rejectionReason?: string
    // Add other doctor properties as needed
 }
 
@@ -36,7 +48,20 @@ interface AdminContextType {
    getDashData: () => Promise<void>;
    loading: boolean;
    setLoading: (loading: boolean) => void;
+   approveCertificates: (
+      docId: string,
+      certificates?: { index: number; status: string; rejectionReason?: string }[],
+   ) => Promise<void>
+   rejectCertificates: (
+      docId: string,
+      certificates?: { index: number; status: string; rejectionReason: string }[],
+   ) => Promise<void>
+   approveDoctor: (docId: string) => Promise<void>
+   rejectDoctor: (docId: string, reason?: string) => Promise<void>
+   deleteDoctorAccount: (docId: string) => Promise<void>
 }
+
+
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
@@ -184,132 +209,129 @@ export const AdminContextProvider = ({ children }: AdminContextProviderProps) =>
          setLoading(false);
       }
    };
-   
-   const approveCertificates = async (docId: string) => {
-      try {
-         setLoading(true);
-         const { data } = await axios.post(
-            backendUrl + '/api/admin/approve-certificates',
-            { docId },
-            { headers: { aToken } }
-         );
-         if (data.success) {
-            toast.success(data.message);
-            getAllDoctors();
-         } else {
-            toast.error(data.message);
-         }
-      } catch (error) {
-         if (axios.isAxiosError(error)) {
-            toast.error(error.response?.data?.message || error.message);
-         } else {
-            toast.error('An unexpected error occurred');
-         }
-      } finally {
-         setLoading(false);
-      }
-   };
 
-   const rejectCertificates = async (docId: string) => {
+   const approveCertificates = async (
+      docId: string,
+      certificates?: { index: number; status: string; rejectionReason?: string }[],
+   ) => {
       try {
-         setLoading(true);
+         setLoading(true)
          const { data } = await axios.post(
-            backendUrl + '/api/admin/reject-certificates',
-            { docId },
-            { headers: { aToken } }
-         );
+            backendUrl + "/api/admin/approve-certificates",
+            { docId, certificates },
+            { headers: { aToken } },
+         )
          if (data.success) {
-            toast.success(data.message);
-            getAllDoctors();
+            toast.success(data.message)
+            getAllDoctors()
          } else {
-            toast.error(data.message);
+            toast.error(data.message)
          }
       } catch (error) {
          if (axios.isAxiosError(error)) {
-            toast.error(error.response?.data?.message || error.message);
+            toast.error(error.response?.data?.message || error.message)
          } else {
-            toast.error('An unexpected error occurred');
+            toast.error("An unexpected error occurred")
          }
       } finally {
-         setLoading(false);
+         setLoading(false)
       }
-   };
+   }
+
+   const rejectCertificates = async (
+      docId: string,
+      certificates?: { index: number; status: string; rejectionReason: string }[],
+   ) => {
+      try {
+         setLoading(true)
+         const { data } = await axios.post(
+            backendUrl + "/api/admin/reject-certificates",
+            { docId, certificates },
+            { headers: { aToken } },
+         )
+         if (data.success) {
+            toast.success(data.message)
+            getAllDoctors()
+         } else {
+            toast.error(data.message)
+         }
+      } catch (error) {
+         if (axios.isAxiosError(error)) {
+            toast.error(error.response?.data?.message || error.message)
+         } else {
+            toast.error("An unexpected error occurred")
+         }
+      } finally {
+         setLoading(false)
+      }
+   }
 
    const approveDoctor = async (docId: string) => {
       try {
-         setLoading(true);
-         const { data } = await axios.post(
-            backendUrl + '/api/admin/approve-doctor',
-            { docId },
-            { headers: { aToken } }
-         );
+         setLoading(true)
+         const { data } = await axios.post(backendUrl + "/api/admin/doctor-approve", { docId }, { headers: { aToken } })
          if (data.success) {
-            toast.success(data.message);
-            getAllDoctors();
+            toast.success(data.message)
+            getAllDoctors()
          } else {
-            toast.error(data.message);
+            toast.error(data.message)
          }
       } catch (error) {
          if (axios.isAxiosError(error)) {
-            toast.error(error.response?.data?.message || error.message);
+            toast.error(error.response?.data?.message || error.message)
          } else {
-            toast.error('An unexpected error occurred');
+            toast.error("An unexpected error occurred")
          }
       } finally {
-         setLoading(false);
+         setLoading(false)
       }
-   };
+   }
 
-   const rejectDoctor = async (docId: string) => {
+   const rejectDoctor = async (docId: string, reason?: string) => {
       try {
-         setLoading(true);
+         setLoading(true)
          const { data } = await axios.post(
-            backendUrl + '/api/admin/reject-doctor',
-            { docId },
-            { headers: { aToken } }
-         );
+            backendUrl + "/api/admin/doctor-cancelled",
+            { docId, rejectionReason: reason },
+            { headers: { aToken } },
+         )
          if (data.success) {
-            toast.success(data.message);
-            getAllDoctors();
+            toast.success(data.message)
+            getAllDoctors()
          } else {
-            toast.error(data.message);
+            toast.error(data.message)
          }
       } catch (error) {
          if (axios.isAxiosError(error)) {
-            toast.error(error.response?.data?.message || error.message);
+            toast.error(error.response?.data?.message || error.message)
          } else {
-            toast.error('An unexpected error occurred');
+            toast.error("An unexpected error occurred")
          }
       } finally {
-         setLoading(false);
+         setLoading(false)
       }
-   };
+   }
 
    const deleteDoctorAccount = async (docId: string) => {
       try {
-         setLoading(true);
-         const { data } = await axios.delete(
-            `${backendUrl}/api/admin/delete-doctor/${docId}`,
-            { headers: { aToken } }
-         );
+         setLoading(true)
+         const { data } = await axios.delete(`${backendUrl}/api/admin/doctor-delete`, { headers: { aToken }, data: { docId } })
          if (data.success) {
-            toast.success(data.message);
-            getAllDoctors();
+            toast.success(data.message)
+            getAllDoctors()
          } else {
-            toast.error(data.message);
+            toast.error(data.message)
          }
       } catch (error) {
          if (axios.isAxiosError(error)) {
-            toast.error(error.response?.data?.message || error.message);
+            toast.error(error.response?.data?.message || error.message)
          } else {
-            toast.error('An unexpected error occurred');
+            toast.error("An unexpected error occurred")
          }
       } finally {
-         setLoading(false);
+         setLoading(false)
       }
-   };
-
-
+   }
 
    const value = {
       aToken,
@@ -325,7 +347,12 @@ export const AdminContextProvider = ({ children }: AdminContextProviderProps) =>
       dashData,
       getDashData,
       loading,
-      setLoading
+      setLoading,
+      approveCertificates,
+      rejectCertificates,
+      approveDoctor,
+      rejectDoctor,
+      deleteDoctorAccount,
    };
 
    return (

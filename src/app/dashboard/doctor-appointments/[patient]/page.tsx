@@ -1,23 +1,27 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useDoctorContext } from "@/context/DoctorContext"
-import Image from "next/image"
-import { redirect } from "next/navigation"
-import { jsPDF } from "jspdf"
-import html2canvas from "html2canvas"
-import { Plus, Download, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { useDoctorContext } from "@/context/DoctorContext"
+import html2canvas from "html2canvas"
+import { jsPDF } from "jspdf"
+import { Download, Plus, Trash2 } from "lucide-react"
+import Image from "next/image"
+import { redirect, useParams } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "react-toastify"
 // import { toast } from "@/components/ui/use-toast"
 
 const Patient = () => {
-  const { appointments, getAppointments, dToken, currentPatient, setPatientInfoForAppointment } = useDoctorContext()
+  const params = useParams();
+  const patientId = params?.patient as string;
 
+
+  const { appointments, getAppointments, dToken, currentPatient, setPatientInfoForAppointment } = useDoctorContext()
+  const [currentAppointment, setCurrentAppointment] = useState<any>(null)
   const pdfRef = useRef(null)
 
   const [medicines, setMedicines] = useState([{ name: "", quantity: "", price: "", dosage: "" }])
@@ -32,7 +36,9 @@ const Patient = () => {
     }
   }, [dToken])
 
-  useEffect(() => console.log(currentPatient, appointments), [currentPatient])
+  useEffect(() => {
+    setCurrentAppointment(appointments.find((appointment: any) => appointment._id === patientId))
+  }, [appointments, patientId])
 
   const handleMedicineChange = (index: number, field: string, value: string) => {
     const updated = [...medicines]
@@ -99,11 +105,37 @@ const Patient = () => {
         heightLeft -= pageHeight
       }
 
+      // Convert PDF to Blob
+      const pdfBlob = pdf.output("blob")
+      const formData = new FormData()
+      // console.log(currentPatient)
+      formData.append("file", pdfBlob, `prescription_${currentPatient.name.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`)
+      formData.append("patientId", currentPatient._id)
+      formData.append("doctorId", currentAppointment?._id)
+      formData.append("diagnosis", diagnosis)
+      formData.append("notes", notes)
+      formData.append("medicines", JSON.stringify(medicines))
+      console.log(formData)
+
+
+      // Download the PDF locally
       pdf.save(`prescription_${currentPatient.name.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`)
-      toast.success("Prescription PDF has been generated successfully")
+
+      toast.success("Prescription PDF has been generated and saved successfully")
+      // Save to backend
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctor/prescription/create`, {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to save prescription")
+      }
+
+      const result = await response.json()
     } catch (error) {
       console.error("Error generating PDF:", error)
-      toast.error("Failed to generate PDF. Please try again.")
+      toast.error("Failed to generate or save PDF. Please try again.")
     } finally {
       setIsGenerating(false)
     }

@@ -20,8 +20,8 @@ const DoctorAppointments = () => {
   const { calculateAge, slotDateFormat, currency } = useAppContext();
   const router = useRouter();
 
-  const handleAppointmentClick = (userdata: any) => {
-    router.push(`/dashboard/doctor-appointments/${userdata.name.split(' ')[0].toLowerCase()}`);
+  const handleAppointmentClick = (userdata: any, appointmentId: string) => {
+    router.push(`/dashboard/doctor-appointments/${appointmentId}`);
     setPatientInfoForAppointment(userdata);
   };
 
@@ -57,7 +57,7 @@ const DoctorAppointments = () => {
 
           {appointments.map((item: any, index: any) => (
             <div
-              onClick={() => handleAppointmentClick(item.userData)}
+              onClick={() => handleAppointmentClick(item.userData, item._id)}
               key={item._id || index}
               className="cursor-pointer flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
             >

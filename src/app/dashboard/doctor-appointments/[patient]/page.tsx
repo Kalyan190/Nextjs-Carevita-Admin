@@ -1,32 +1,38 @@
 "use client";
-import { useParams } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import { useDoctorContext } from "@/context/DoctorContext";
 import Image from "next/image";
 import { assets } from "@/assets/assets_admin/assets";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
+import generatePDF from 'react-to-pdf';
+
+
 
 const Patient = () => {
-  const { appointments, getAppointments, dToken, currentPatient } =
-    useDoctorContext();
-  const { patient } = useParams();
-  const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+
+
+  const { appointments, getAppointments, dToken, currentPatient } = useDoctorContext();
+  const ref = useRef(null);
+
 
   useEffect(() => {
     if (dToken) {
       getAppointments();
     }
   }, [dToken]);
+  
 
   useEffect(() => console.log(currentPatient, appointments), [currentPatient]);
 
-  return !appointments || !currentPatient ? ( router.back() ) : (
+  return !appointments || !currentPatient ? ( redirect('/dashboard/doctor-appointments') ) : (
     <div>
-      <div>
+      <div className="">
+      <button onClick={() => generatePDF(ref,{filename : 'page.pdf'})} className="cursor-pointer mx-auto mb-8 rounded-xl  bg-green-500 px-2 py-1 text-sm font-semibold text-white hover:bg-green-600 md:rounded-2xl md:px-4 md:py-1 md:text-base">
+        Download Invoice
+      </button>
         <div
           ref={ref}
-          className="flex justify-center items-center h-[1139px] w-[827px] scale-[40%] -translate-y-1/4 sm:scale-50 md:scale-75 md:-translate-y-[150px] lg:scale-100 lg:translate-y-0 shadow-[4px_4px_20px_4px_#1a202c] "
+          className=" flex justify-center items-center h-[1139px] w-[827px] scale-[40%] -translate-y-1/4 sm:scale-50 md:scale-75 md:-translate-y-[150px] lg:scale-100 lg:translate-y-0 shadow-[4px_4px_20px_4px_#1a202c] "
         >
           <div className="h-[90%] w-[90%] p-4">
             <Image src={assets.admin_logo.src} alt="logo" width={150} height={15} className="mx-auto mb-2"/>
@@ -55,12 +61,12 @@ const Patient = () => {
             <div className="flex-center mx-auto my-6">
               <table className="w-[98%] md:w-[90%]">
                 <thead>
-                  <tr className="border">
-                    <th className="border px-2 py-1">Product ID</th>
+                  <tr className="border ">
                     <th className="border px-2 py-1">Name</th>
                     <th className="border px-2 py-1">Quantity</th>
                     <th className="border px-2 py-1">Price per Unit &#8377;</th>
                     <th className="border px-2 py-1">Net Price &#8377;</th>
+                    <th className="border px-2 py-1">Dosage</th>
                   </tr>
                 </thead>
               </table>

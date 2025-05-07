@@ -53,10 +53,11 @@ const Sidebar = () => {
                         <img src={assets.people_icon.src} alt="" />
                         <p className='hidden md:block'>Doctors List</p>
                     </Link>
+                    
                 </ul>
             )}
             {dToken && (
-                <ul className='text-[#515151] mt-5'>
+                <ul className='text-[#515151] border-none mt-5'>
                     <Link 
                         href='/dashboard'
                         className={`flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${isActive('/dashboard') ? 'bg-[#F2F3FF] border-r-4 border-primary' : ''}`}

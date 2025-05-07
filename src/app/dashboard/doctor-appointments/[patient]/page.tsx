@@ -1,91 +1,357 @@
-"use client";
-import React, { useEffect, useRef } from "react";
-import { useDoctorContext } from "@/context/DoctorContext";
-import Image from "next/image";
-import { assets } from "@/assets/assets_admin/assets";
-import { redirect } from "next/navigation";
-import generatePDF from 'react-to-pdf';
+"use client"
 
-
+import { useEffect, useRef, useState } from "react"
+import { useDoctorContext } from "@/context/DoctorContext"
+import Image from "next/image"
+import { redirect } from "next/navigation"
+import { jsPDF } from "jspdf"
+import html2canvas from "html2canvas"
+import { Plus, Download, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { toast } from "react-toastify"
+// import { toast } from "@/components/ui/use-toast"
 
 const Patient = () => {
+  const { appointments, getAppointments, dToken, currentPatient, setPatientInfoForAppointment } = useDoctorContext()
 
+  const pdfRef = useRef(null)
 
-  const { appointments, getAppointments, dToken, currentPatient } = useDoctorContext();
-  const ref = useRef(null);
+  const [medicines, setMedicines] = useState([{ name: "", quantity: "", price: "", dosage: "" }])
 
+  const [diagnosis, setDiagnosis] = useState("")
+  const [notes, setNotes] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
     if (dToken) {
-      getAppointments();
+      getAppointments()
     }
-  }, [dToken]);
-  
+  }, [dToken])
 
-  useEffect(() => console.log(currentPatient, appointments), [currentPatient]);
+  useEffect(() => console.log(currentPatient, appointments), [currentPatient])
 
-  return !appointments || !currentPatient ? ( redirect('/dashboard/doctor-appointments') ) : (
-    <div>
-      <div className="">
-      <button onClick={() => generatePDF(ref,{filename : 'page.pdf'})} className="cursor-pointer mx-auto mb-8 rounded-xl  bg-green-500 px-2 py-1 text-sm font-semibold text-white hover:bg-green-600 md:rounded-2xl md:px-4 md:py-1 md:text-base">
-        Download Invoice
-      </button>
-        <div
-          ref={ref}
-          className=" flex justify-center items-center h-[1139px] w-[827px] scale-[40%] -translate-y-1/4 sm:scale-50 md:scale-75 md:-translate-y-[150px] lg:scale-100 lg:translate-y-0 shadow-[4px_4px_20px_4px_#1a202c] "
-        >
-          <div className="h-[90%] w-[90%] p-4">
-            <Image src={assets.admin_logo.src} alt="logo" width={150} height={15} className="mx-auto mb-2"/>
-            <h3 className="text-lg font-semibold">
-              Date: {new Date().toLocaleDateString()}
-            </h3>
-            <div className="flex justify-between mt-2 pb-3 border-b-1 border-red-600">
-              {/* Patient Info */}
-              <div>
-                <h2>  Patient name : <span className="defaultText">{currentPatient.name}</span></h2>
-                <h2>  Contact :{" "}  <span className="defaultText">    {currentPatient.phone} | {currentPatient.email}  </span></h2>
-                <h2>  Info :{" "}  <span className="defaultText">    {currentPatient.dob} | {currentPatient.gender}  </span></h2>
+  const handleMedicineChange = (index: number, field: string, value: string) => {
+    const updated = [...medicines]
+    updated[index][field as keyof (typeof medicines)[number]] = value
+    setMedicines(updated)
+  }
+
+  const addMedicineRow = () => {
+    setMedicines([...medicines, { name: "", quantity: "", price: "", dosage: "" }])
+  }
+
+  const removeMedicineRow = (index: number) => {
+    if (medicines.length > 1) {
+      const updated = [...medicines]
+      updated.splice(index, 1)
+      setMedicines(updated)
+    }
+  }
+
+  const calculateTotal = () => {
+    return medicines.reduce((total, med) => {
+      const price = Number(med.price) || 0
+      const quantity = Number(med.quantity) || 0
+      return total + price * quantity
+    }, 0)
+  }
+
+  const generatePDF = async () => {
+    if (!pdfRef.current) return
+
+    setIsGenerating(true)
+    try {
+      const element = pdfRef.current
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      })
+
+      const imgData = canvas.toDataURL("image/png")
+
+      // A4 size: 210 x 297 mm
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      })
+
+      const imgWidth = 210
+      const pageHeight = 297
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+      let position = 0
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+
+      // Add new pages if content overflows
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+      }
+
+      pdf.save(`prescription_${currentPatient.name.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`)
+      toast.success("Prescription PDF has been generated successfully")
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      toast.error("Failed to generate PDF. Please try again.")
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  if (!appointments || !currentPatient) {
+    redirect("/dashboard/doctor-appointments")
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Patient Prescription</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Input Form */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Prescription Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="diagnosis">Diagnosis</Label>
+                <Input
+                  id="diagnosis"
+                  placeholder="Patient diagnosis"
+                  value={diagnosis}
+                  onChange={(e) => setDiagnosis(e.target.value)}
+                />
               </div>
 
-              {/* Doctor Info */}
-              <div>
-                <h2 className="defaultText">Doctor name : <span className="defaultText">{appointments[0].docData.name}</span>                </h2>
-                <h2> <span className="defaultText">{appointments[0].docData.educationDetails.degree} | {appointments[0].docData.educationDetails.college} </span></h2>
-                <h2><span className="defaultText">{appointments[0].docData.experience} years experience </span> </h2>
-                <h2><span className="defaultText">{appointments[0].docData.address.street} | {appointments[0].docData.address.pincode} | {appointments[0].docData.address.state}</span></h2>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Doctor's Notes</Label>
+                <textarea
+                  id="notes"
+                  className="w-full min-h-[100px] p-2 border rounded-md"
+                  placeholder="Additional notes for the patient"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
               </div>
-            </div>
 
-            <div className="border-b-1 mt-1 border-red-600"></div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Prescribed Medicines</Label>
+                  <Button variant="outline" size="sm" onClick={addMedicineRow}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Medicine
+                  </Button>
+                </div>
 
-            <div className="flex-center mx-auto my-6">
-              <table className="w-[98%] md:w-[90%]">
-                <thead>
-                  <tr className="border ">
-                    <th className="border px-2 py-1">Name</th>
-                    <th className="border px-2 py-1">Quantity</th>
-                    <th className="border px-2 py-1">Price per Unit &#8377;</th>
-                    <th className="border px-2 py-1">Net Price &#8377;</th>
-                    <th className="border px-2 py-1">Dosage</th>
-                  </tr>
-                </thead>
-              </table>
-            </div>
+                <div className="space-y-3">
+                  {medicines.map((med, index) => (
+                    <div key={index} className="grid grid-cols-12 gap-2 items-center">
+                      <div className="col-span-4">
+                        <Input
+                          placeholder="Medicine Name"
+                          value={med.name}
+                          onChange={(e) => handleMedicineChange(index, "name", e.target.value)}
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Input
+                          type="number"
+                          placeholder="Qty"
+                          value={med.quantity}
+                          onChange={(e) => handleMedicineChange(index, "quantity", e.target.value)}
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Input
+                          type="number"
+                          placeholder="Price ₹"
+                          value={med.price}
+                          onChange={(e) => handleMedicineChange(index, "price", e.target.value)}
+                        />
+                      </div>
+                      <div className="col-span-3">
+                        <Input
+                          placeholder="Dosage"
+                          value={med.dosage}
+                          onChange={(e) => handleMedicineChange(index, "dosage", e.target.value)}
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeMedicineRow(index)}
+                          disabled={medicines.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            <div className="absolute bottom-[6%] left-1/2 w-[90%] -translate-x-1/2">
-              <h3 className="smalltext mx-2 text-center tracking-tight text-gray-600">
-                This is a computer generated prescription generated by the
-                doctor after successful examining of the patient.
-              </h3>
-              <h3 className="smalltext mt-2 text-center font-semibold tracking-wide">
-                © 2025 All Rights Reserved.
-              </h3>
-            </div>
-          </div>
+              <Button className="w-full" onClick={generatePDF} disabled={isGenerating}>
+                <Download className="h-4 w-4 mr-2" />
+                {isGenerating ? "Generating PDF..." : "Generate Prescription PDF"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Preview */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Prescription Preview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-md p-4 bg-white print-friendly">
+                <div ref={pdfRef} className="w-full bg-white p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      {appointments[0]?.docData?.logo ? (
+                        <Image
+                          src={appointments[0].docData.logo || "/placeholder.svg"}
+                          alt="Doctor Logo"
+                          width={120}
+                          height={40}
+                        />
+                      ) : (
+                        <div className="text-xl font-bold text-gray-800">
+                          {appointments[0]?.docData?.name || "Doctor's Clinic"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-gray-600">Date: {new Date().toLocaleDateString()}</div>
+                      <div className="text-sm text-gray-600">
+                        Prescription #:{" "}
+                        {Math.floor(Math.random() * 10000)
+                          .toString()
+                          .padStart(4, "0")}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="border-r pr-4">
+                      <h3 className="font-semibold text-gray-700 mb-1">Patient Information</h3>
+                      <div className="text-sm">
+                        <p>
+                          <span className="font-medium">Name:</span> {currentPatient.name}
+                        </p>
+                        <p>
+                          <span className="font-medium">Contact:</span> {currentPatient.phone}
+                        </p>
+                        <p>
+                          <span className="font-medium">Email:</span> {currentPatient.email}
+                        </p>
+                        <p>
+                          <span className="font-medium">DOB:</span> {currentPatient.dob}
+                        </p>
+                        <p>
+                          <span className="font-medium">Gender:</span> {currentPatient.gender}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-gray-700 mb-1">Doctor Information</h3>
+                      <div className="text-sm">
+                        <p>
+                          <span className="font-medium">Name:</span> {appointments[0]?.docData?.name}
+                        </p>
+                        <p>
+                          <span className="font-medium">Qualifications:</span>{" "}
+                          {appointments[0]?.docData?.educationDetails?.degree}
+                        </p>
+                        <p>
+                          <span className="font-medium">Experience:</span> {appointments[0]?.docData?.experience} years
+                        </p>
+                        <p>
+                          <span className="font-medium">Address:</span> {appointments[0]?.docData?.address?.street},{" "}
+                          {appointments[0]?.docData?.address?.pincode}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {diagnosis && (
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-gray-700 mb-1">Diagnosis</h3>
+                      <p className="text-sm border p-2 rounded bg-gray-50">{diagnosis}</p>
+                    </div>
+                  )}
+
+                  <div className="mb-6">
+                    <h3 className="font-semibold text-gray-700 mb-2">Prescribed Medicines</h3>
+                    <table className="w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="border p-2 text-left">Medicine</th>
+                          <th className="border p-2 text-center">Quantity</th>
+                          <th className="border p-2 text-center">Price/Unit ₹</th>
+                          <th className="border p-2 text-center">Total ₹</th>
+                          <th className="border p-2 text-center">Dosage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {medicines.map((med, index) => {
+                          const netPrice = (Number(med.quantity) || 0) * (Number(med.price) || 0)
+                          return med.name ? (
+                            <tr key={index}>
+                              <td className="border p-2">{med.name}</td>
+                              <td className="border p-2 text-center">{med.quantity}</td>
+                              <td className="border p-2 text-center">{med.price}</td>
+                              <td className="border p-2 text-center">{netPrice.toFixed(2)}</td>
+                              <td className="border p-2 text-center">{med.dosage}</td>
+                            </tr>
+                          ) : null
+                        })}
+                        <tr className="bg-gray-50">
+                          <td colSpan={3} className="border p-2 text-right font-medium">
+                            Total Amount:
+                          </td>
+                          <td className="border p-2 text-center font-medium">₹{calculateTotal().toFixed(2)}</td>
+                          <td className="border p-2"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {notes && (
+                    <div className="mb-6">
+                      <h3 className="font-semibold text-gray-700 mb-1">Doctor's Notes</h3>
+                      <p className="text-sm border p-2 rounded bg-gray-50">{notes}</p>
+                    </div>
+                  )}
+
+                  <Separator className="my-4" />
+
+                  <div className="mt-8 text-center text-xs text-gray-500">
+                    <p>This is a computer-generated prescription created by the doctor after examining the patient.</p>
+                    <p className="mt-1 font-medium">© {new Date().getFullYear()} All Rights Reserved.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Patient;
+export default Patient

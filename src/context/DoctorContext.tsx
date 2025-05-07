@@ -38,6 +38,8 @@ interface DoctorContextType {
    getProfileData: () => Promise<void>;
    loading: boolean;
    setLoading: (loading: boolean) => void;
+   currentPatient: any;
+   setPatientInfoForAppointment: (userData: any) => void;
 }
 
 const DoctorContext = createContext<DoctorContextType | undefined>(undefined);
@@ -189,7 +191,7 @@ export const DoctorContextProvider = ({ children }: DoctorContextProviderProps) 
 
 
    //Gives patient information from the appointment data
-    const setPatientInfoForAppointment = (userData: any) => {
+    const setPatientInfoForAppointment: any = (userData: any) => {
       setCurrentPatient(userData);
     }
 

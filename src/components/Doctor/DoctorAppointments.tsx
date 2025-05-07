@@ -5,6 +5,7 @@ import { useAppContext } from '@/context/AppContext';
 import { assets } from '@/assets/assets_admin/assets';
 import { useRouter } from 'next/navigation';
 import { set } from 'react-hook-form';
+import { Badge } from '../ui/badge';
 const DoctorAppointments = () => {
   const {
     dToken,
@@ -32,28 +33,29 @@ const DoctorAppointments = () => {
 
   return (
     <>
-      
+
 
       <div className={`w-full max-w-6xl m-5 ${loading ? 'opacity-45' : ''}`}>
         <p className="mb-3 text-lg font-medium">All Appointments</p>
 
-        <div  className="bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll min-h-[60vh]">
-              {loading && (
-                 <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-85 z-50">
-                    <Loader className="animate-spin text-blue-600 w-16 h-16" />
-                 </div>
-              )}
+        <div className="bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll min-h-[60vh]">
+          {loading && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-85 z-50">
+              <Loader className="animate-spin text-blue-600 w-16 h-16" />
+            </div>
+          )}
           <div className="hidden sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] py-3 px-6 border-b">
             <p>#</p>
             <p>Patient</p>
             <p>Payment</p>
             <p>Age</p>
             <p>Date & Time</p>
-            <p>Fees</p>
+            <p>Status</p>
+
             <p>Actions</p>
           </div>
 
-          {appointments.map((item:any, index:any) => (
+          {appointments.map((item: any, index: any) => (
             <div
               onClick={() => handleAppointmentClick(item.userData)}
               key={item._id || index}
@@ -85,11 +87,11 @@ const DoctorAppointments = () => {
               <p>
                 {slotDateFormat(item.slotDate)}, {item.slotTime}
               </p>
-
+              {/* 
               <p>
                 {currency} {item.amount}
-              </p>
-
+              </p> */}
+              {item.isPaid ? <Badge variant="outline" className="bg-green-500 text-white">Paid</Badge> : <Badge variant="outline" className="bg-red-500 text-white">Unpaid</Badge>}
               {item.cancelled ? (
                 <p className="text-red-400 text-xs font-medium">Cancelled</p>
               ) : item.isComplete ? (

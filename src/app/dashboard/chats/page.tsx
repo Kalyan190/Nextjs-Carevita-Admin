@@ -232,7 +232,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-white">
+    <div className="flex h-screen w-full overflow-hidden bg-white">
       <div className="flex max-w-6xl w-full mx-auto p-4">
         {/* Conversation List */}
         <Card className="w-1/3 max-w-xs mr-4 border shadow-sm h-[calc(100vh-2rem)] flex flex-col">
@@ -322,7 +322,7 @@ export default function ChatPage() {
                 </div>
               </CardHeader>
 
-              <ScrollArea className="flex-1 overflow-y-auto">
+              <ScrollArea className="flex-1 p-3 overflow-y-auto">
                 <div className="space-y-4">
                   {messages.length > 0 ? (
                     messages.map((msg) => (

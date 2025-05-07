@@ -123,7 +123,7 @@ const Patient = () => {
 
       toast.success("Prescription PDF has been generated and saved successfully")
       // Save to backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctor/prescription/create`, {
+      const response = await fetch(`http://localhost:4000/api/doctor/prescription/create`, {
         method: "POST",
         body: formData,
       })

@@ -53,6 +53,7 @@ export const DoctorContextProvider = ({ children }: DoctorContextProviderProps) 
    const [dashData, setDashData] = useState<DashData | undefined>(undefined);
    const [profileData, setProfileData] = useState<ProfileData | undefined>(undefined);
    const [loading, setLoading] = useState(false);
+   const [currentPatient, setCurrentPatient] = useState<ProfileData | null>(null);
 
    useEffect(() => {
       // Only access localStorage after component mounts (client-side)
@@ -186,6 +187,12 @@ export const DoctorContextProvider = ({ children }: DoctorContextProviderProps) 
       }
    };
 
+
+   //Gives patient information from the appointment data
+    const setPatientInfoForAppointment = (userData: any) => {
+      setCurrentPatient(userData);
+    }
+
    const value = {
       dToken,
       setDtoken: handleSetToken,
@@ -202,7 +209,9 @@ export const DoctorContextProvider = ({ children }: DoctorContextProviderProps) 
       setProfileData,
       getProfileData,
       loading,
-      setLoading
+      setLoading,
+      currentPatient,
+      setPatientInfoForAppointment
    };
 
    return (

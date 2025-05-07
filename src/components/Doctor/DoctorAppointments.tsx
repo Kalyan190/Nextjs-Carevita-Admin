@@ -3,7 +3,8 @@ import { Loader } from 'lucide-react';
 import { useDoctorContext } from '@/context/DoctorContext';
 import { useAppContext } from '@/context/AppContext';
 import { assets } from '@/assets/assets_admin/assets';
-
+import { useRouter } from 'next/navigation';
+import { set } from 'react-hook-form';
 const DoctorAppointments = () => {
   const {
     dToken,
@@ -12,9 +13,16 @@ const DoctorAppointments = () => {
     completeAppointment,
     cancelAppointment,
     loading,
+    setPatientInfoForAppointment
   } = useDoctorContext();
 
   const { calculateAge, slotDateFormat, currency } = useAppContext();
+  const router = useRouter();
+
+  const handleAppointmentClick = (userdata: any) => {
+    router.push(`/dashboard/doctor-appointments/${userdata.name.split(' ')[0].toLowerCase()}`);
+    setPatientInfoForAppointment(userdata);
+  };
 
   useEffect(() => {
     if (dToken) {
@@ -29,7 +37,7 @@ const DoctorAppointments = () => {
       <div className={`w-full max-w-6xl m-5 ${loading ? 'opacity-45' : ''}`}>
         <p className="mb-3 text-lg font-medium">All Appointments</p>
 
-        <div className="bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll min-h-[60vh]">
+        <div  className="bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll min-h-[60vh]">
               {loading && (
                  <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-85 z-50">
                     <Loader className="animate-spin text-blue-600 w-16 h-16" />
@@ -45,10 +53,11 @@ const DoctorAppointments = () => {
             <p>Actions</p>
           </div>
 
-          {appointments.map((item:any, index) => (
+          {appointments.map((item:any, index:any) => (
             <div
+              onClick={() => handleAppointmentClick(item.userData)}
               key={item._id || index}
-              className="flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
+              className="cursor-pointer flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
             >
               <p className="max-sm:hidden">{index + 1}</p>
 

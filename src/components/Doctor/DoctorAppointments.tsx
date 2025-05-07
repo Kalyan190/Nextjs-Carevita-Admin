@@ -47,7 +47,7 @@ const DoctorAppointments = () => {
           <div className="hidden sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] py-3 px-6 border-b">
             <p>#</p>
             <p>Patient</p>
-            <p>Payment</p>
+            <p>Prescription</p>
             <p>Age</p>
             <p>Date & Time</p>
             <p>Status</p>
@@ -57,7 +57,6 @@ const DoctorAppointments = () => {
 
           {appointments.map((item: any, index: any) => (
             <div
-              onClick={() => handleAppointmentClick(item.userData, item._id)}
               key={item._id || index}
               className="cursor-pointer flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
             >
@@ -73,8 +72,8 @@ const DoctorAppointments = () => {
               </div>
 
               <div>
-                <p className="text-xs inline border border-primary px-2 rounded-full">
-                  {item.payment ? 'Online' : 'CASH'}
+                <p onClick={() => handleAppointmentClick(item.userData, item._id)} className="text-xs inline border border-primary px-2 rounded-full">
+                  Prescribe
                 </p>
               </div>
 

@@ -21,7 +21,7 @@
 //   }, []);
 
 //   useEffect(() => {
-    
+
 //     if (doctorId) {
 //       axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/chat/conversations?userId=${doctorId}&role=doctor`)
 //         .then(res => { setConversations(res.data); setSelectedConversation(res.data[0]) })
@@ -126,16 +126,17 @@
 
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import axios from "axios"
-import io from "socket.io-client"
-import { Send, User, Search, Clock } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import axios from "axios"
+import { Clock, Search, Send, User, Video } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
+import io from "socket.io-client"
 
 // Initialize socket connection
 const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`) // Update for prod
@@ -268,9 +269,8 @@ export default function ChatPage() {
                 conversations.map((conv) => (
                   <div
                     key={conv._id}
-                    className={`p-3 my-1 rounded-lg cursor-pointer transition-colors ${
-                      selectedConversation?._id === conv._id ? "bg-blue-50 border border-blue-100" : "hover:bg-gray-50"
-                    }`}
+                    className={`p-3 my-1 rounded-lg cursor-pointer transition-colors ${selectedConversation?._id === conv._id ? "bg-blue-50 border border-blue-100" : "hover:bg-gray-50"
+                      }`}
                     onClick={() => setSelectedConversation(conv)}
                   >
                     <div className="flex items-center gap-3">
@@ -319,6 +319,15 @@ export default function ChatPage() {
                     <CardTitle className="text-lg font-medium">{selectedConversation.other.name}</CardTitle>
                     <p className="text-xs text-gray-500">Patient ID: {selectedConversation.user}</p>
                   </div>
+                  <Link
+                    target="_blank"
+                    href={`https://comfront.vercel.app/meeting/${selectedConversation.other.userId}`}
+                    aria-label="Search in conversation"
+                  >
+                    <button className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                      <Video size={20} />
+                    </button>
+                  </Link>
                 </div>
               </CardHeader>
 
@@ -331,11 +340,10 @@ export default function ChatPage() {
                         className={`flex ${msg.senderId === doctorId ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-xs p-3 rounded-2xl ${
-                            msg.senderId === doctorId
+                          className={`max-w-xs p-3 rounded-2xl ${msg.senderId === doctorId
                               ? "bg-blue-500 text-white rounded-br-none"
                               : "bg-gray-100 text-gray-800 rounded-bl-none border border-gray-200"
-                          }`}
+                            }`}
                         >
                           <p className="text-sm">{msg.text}</p>
                           <p

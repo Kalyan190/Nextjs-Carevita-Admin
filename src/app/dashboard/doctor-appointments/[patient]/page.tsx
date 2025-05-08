@@ -24,10 +24,10 @@ const Patient = () => {
   const [currentAppointment, setCurrentAppointment] = useState<any>(null)
   const pdfRef = useRef(null)
 
-  const [medicines, setMedicines] = useState([{ name: "", quantity: "", price: "", dosage: "" }])
+  const [medicines, setMedicines] = useState([{ name: "", quantity: "", price: "", dosage: "", duration: "", instructions: "" }])
 
-  const [diagnosis, setDiagnosis] = useState("")
-  const [notes, setNotes] = useState("")
+  const [diagnosis, setDiagnosis] = useState<string>("")
+  const [notes, setNotes] = useState<string>("")
   const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const Patient = () => {
   }
 
   const addMedicineRow = () => {
-    setMedicines([...medicines, { name: "", quantity: "", price: "", dosage: "" }])
+    setMedicines([...medicines, { name: "", quantity: "", price: "", dosage: "", duration: "", instructions: "" }])
   }
 
   const removeMedicineRow = (index: number) => {
@@ -219,6 +219,13 @@ const Patient = () => {
                           onChange={(e) => handleMedicineChange(index, "dosage", e.target.value)}
                         />
                       </div>
+                      <div className="col-span-3">
+                        <Input
+                          placeholder="Duration"
+                          value={med.duration}
+                          onChange={(e) => handleMedicineChange(index, "duration", e.target.value)}
+                        />
+                      </div>
                       <div className="col-span-1">
                         <Button
                           variant="ghost"
@@ -253,16 +260,16 @@ const Patient = () => {
                 <div ref={pdfRef} className="w-full bg-white p-6">
                   <div className="flex justify-between items-center mb-6">
                     <div>
-                      {appointments[0]?.docData?.logo ? (
+                      {currentAppointment?.docData?.logo ? (
                         <Image
-                          src={appointments[0].docData.logo || "/placeholder.svg"}
+                          src={currentAppointment.docData.logo || "/placeholder.svg"}
                           alt="Doctor Logo"
                           width={120}
                           height={40}
                         />
                       ) : (
                         <div className="text-xl font-bold text-gray-800">
-                          {appointments[0]?.docData?.name || "Doctor's Clinic"}
+                          {/* {currentAppointment?.docData?.name || "Doctor's Clinic"} */}
                         </div>
                       )}
                     </div>
@@ -303,7 +310,7 @@ const Patient = () => {
                       <h3 className="font-semibold text-gray-700 mb-1">Doctor Information</h3>
                       <div className="text-sm">
                         <p>
-                          <span className="font-medium">Name:</span> {appointments[0]?.docData?.name}
+                          <span className="font-medium">Name:</span> {currentAppointment?.docData?.name}
                         </p>
                         <p>
                           <span className="font-medium">Qualifications:</span>{" "}
@@ -337,6 +344,7 @@ const Patient = () => {
                           <th className="border p-2 text-center">Price/Unit ₹</th>
                           <th className="border p-2 text-center">Total ₹</th>
                           <th className="border p-2 text-center">Dosage</th>
+                          <th className="border p-2 text-center">Duration</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -349,6 +357,7 @@ const Patient = () => {
                               <td className="border p-2 text-center">{med.price}</td>
                               <td className="border p-2 text-center">{netPrice.toFixed(2)}</td>
                               <td className="border p-2 text-center">{med.dosage}</td>
+                              <td className="border p-2 text-center">{med.duration}</td>
                             </tr>
                           ) : null
                         })}

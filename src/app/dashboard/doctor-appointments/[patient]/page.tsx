@@ -1,5 +1,6 @@
 "use client"
 
+import { assets } from "@/assets/assets_admin/assets"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,6 +19,7 @@ import { toast } from "react-toastify"
 const Patient = () => {
   const params = useParams();
   const patientId = params?.patient as string;
+  
 
 
   const { appointments, getAppointments, dToken, currentPatient, setPatientInfoForAppointment } = useDoctorContext()
@@ -132,7 +134,7 @@ const Patient = () => {
         throw new Error("Failed to save prescription")
       }
 
-      const result = await response.json()
+      // const result = await response.json()
     } catch (error) {
       console.error("Error generating PDF:", error)
       toast.error("Failed to generate or save PDF. Please try again.")
@@ -146,6 +148,7 @@ const Patient = () => {
   }
 
   return (
+    !appointments || !currentPatient ? redirect("/dashboard/doctor-appointments") :
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Patient Prescription</h1>
 
@@ -243,7 +246,7 @@ const Patient = () => {
 
               <Button className="w-full" onClick={generatePDF} disabled={isGenerating}>
                 <Download className="h-4 w-4 mr-2" />
-                {isGenerating ? "Generating PDF..." : "Generate Prescription PDF"}
+                {isGenerating ? "Generating PDF..." : "Generate and save PDF"}
               </Button>
             </CardContent>
           </Card>
@@ -252,12 +255,12 @@ const Patient = () => {
         {/* Right Column - Preview */}
         <div>
           <Card>
-            <CardHeader>
-              <CardTitle>Prescription Preview</CardTitle>
+            <CardHeader className="flex flex-col justify-center items-center text-center">
+                <Image src={assets.admin_logo} alt="Doctor Logo" width={120} height={40} className="mb-2" />
             </CardHeader>
             <CardContent>
-              <div className="border rounded-md p-4 bg-white print-friendly">
-                <div ref={pdfRef} className="w-full bg-white p-6">
+              <div className="border rounded-md p-2 bg-white print-friendly">
+                <div ref={pdfRef} className="w-full bg-white p-2">
                   <div className="flex justify-between items-center mb-6">
                     <div>
                       {currentAppointment?.docData?.logo ? (
@@ -284,24 +287,18 @@ const Patient = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="border-r pr-4">
+                  <div className="grid grid-cols-2 gap-4 mb-6 pb-2 border-b-2 border-red-700">
+                    <div className="pr-4 ">
                       <h3 className="font-semibold text-gray-700 mb-1">Patient Information</h3>
                       <div className="text-sm">
                         <p>
                           <span className="font-medium">Name:</span> {currentPatient.name}
                         </p>
                         <p>
-                          <span className="font-medium">Contact:</span> {currentPatient.phone}
+                          <span className="font-medium">Contact:</span> {currentPatient.phone} | {currentPatient.email}
                         </p>
                         <p>
-                          <span className="font-medium">Email:</span> {currentPatient.email}
-                        </p>
-                        <p>
-                          <span className="font-medium">DOB:</span> {currentPatient.dob}
-                        </p>
-                        <p>
-                          <span className="font-medium">Gender:</span> {currentPatient.gender}
+                          <span className="font-medium">Info:</span> {currentPatient.gender} | DOB:{currentPatient.dob}
                         </p>
                       </div>
                     </div>
@@ -314,13 +311,13 @@ const Patient = () => {
                         </p>
                         <p>
                           <span className="font-medium">Qualifications:</span>{" "}
-                          {appointments[0]?.docData?.educationDetails?.degree}
+                          {appointments[0]?.docData?.educationDetails?.degree} at {appointments[0]?.docData?.educationDetails?.college}
                         </p>
                         <p>
                           <span className="font-medium">Experience:</span> {appointments[0]?.docData?.experience} years
                         </p>
                         <p>
-                          <span className="font-medium">Address:</span> {appointments[0]?.docData?.address?.street},{" "}
+                          <span className="font-medium"></span> {appointments[0]?.docData?.address?.street},{" "}
                           {appointments[0]?.docData?.address?.pincode}
                         </p>
                       </div>

@@ -113,7 +113,7 @@ const Patient = () => {
       // console.log(currentPatient)
       formData.append("file", pdfBlob, `prescription_${currentPatient.name.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`)
       formData.append("patientId", currentPatient._id)
-      formData.append("doctorId", currentAppointment?._id)
+      formData.append("doctorId", currentAppointment?.docData?._id)
       formData.append("diagnosis", diagnosis)
       formData.append("notes", notes)
       formData.append("medicines", JSON.stringify(medicines))
